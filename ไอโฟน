@@ -1,0 +1,137 @@
+-- =====================================================
+-- iPhone 15 Pro Max Premium Hub (Executor Script)
+-- =====================================================
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "📱 iPhone 15 Pro Max Hub",
+   LoadingTitle = "กำลังโหลดระบบ iPhone Hub...",
+   LoadingSubtitle = "by Delta Executor",
+   ConfigurationSaving = { Enabled = false }
+})
+
+local MainTab = Window:CreateTab("ฟังก์ชันหลัก", 4483362458)
+
+--------------------------------------------------------
+-- 1. สคริปต์วิ่งเร็ว (Speed Hack)
+--------------------------------------------------------
+MainTab:CreateSlider({
+   Name = "ความเร็วการวิ่ง (Speed)",
+   Range = {16, 300},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Flag = "SpeedSlider",
+   Callback = function(Value)
+       if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+           game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+       end
+   end,
+})
+
+--------------------------------------------------------
+-- 2. สคริปต์ฆ่าออโต้ (Kill Aura)
+--------------------------------------------------------
+_G.KillAura = false
+
+MainTab:CreateToggle({
+   Name = "ฆ่าออโต้ (Kill Aura - ระยะใกล้)",
+   CurrentValue = false,
+   Flag = "KillAuraToggle",
+   Callback = function(Value)
+       _G.KillAura = Value
+       task.spawn(function()
+           while _G.KillAura do
+               task.wait(0.1)
+               local player = game.Players.LocalPlayer
+               local char = player.Character
+               if char and char:FindFirstChild("HumanoidRootPart") then
+                   for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+                       if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("Humanoid") then
+                           local enemyHrp = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
+                           local enemyHum = otherPlayer.Character.Humanoid
+                           if enemyHrp and enemyHum.Health > 0 then
+                               local dist = (char.HumanoidRootPart.Position - enemyHrp.Position).Magnitude
+                               if dist <= 15 then -- ระยะ 15 หน่วย
+                                   -- ลองลดเลือดผ่าน Humanoid โดยตรง (ใช้ได้ในบางเกมที่ไม่กัน)
+                                   enemyHum:TakeDamage(10)
+                                   
+                                   -- หากเกมมี RemoteEvent สำหรับโจมตี ให้เปิดใช้บรรทัดด้านล่าง:
+                                   -- game:GetService("ReplicatedStorage").AttackRemote:FireServer(otherPlayer.Character)
+                               end
+                           end
+                       end
+                   end
+               end
+           end
+       end)
+   end,
+})
+
+--------------------------------------------------------
+-- 3. สคริปต์ล่องหน (Invisibility)
+--------------------------------------------------------
+MainTab:CreateButton({
+   Name = "เปิดโหมดล่องหน (Invisibility)",
+   Callback = function()
+       local player = game.Players.LocalPlayer
+       local character = player.Character
+       if character then
+           for _, part in pairs(character:GetDescendants()) do
+               if part:IsA("BasePart") or part:IsA("Decal") then
+                   part.Transparency = 1
+               end
+           end
+           
+           -- ลบ Face / Accessories บางส่วนเพื่อความเนียน
+           if character:FindFirstChild("Head") and character.Head:FindFirstChild("face") then
+               character.Head.face.Transparency = 1
+           end
+           
+           game:GetService("StarterGui"):SetCore("SendNotification", {
+               Title = "iPhone Hub",
+               Text = "ตัวละครล่องหนเรียบร้อยแล้ว!",
+               Duration = 3
+           })
+       end
+   end,
+})
+
+--------------------------------------------------------
+-- 4. สคริปต์แอนิเมชันกวนๆ / ท่าทาง (Animation / Emote)
+--------------------------------------------------------
+local isEmoting = false
+
+MainTab:CreateToggle({
+   Name = "แอนิเมชันขยับมือซ้ำๆ (Custom Emote)",
+   CurrentValue = false,
+   Flag = "EmoteToggle",
+   Callback = function(Value)
+       isEmoting = Value
+       task.spawn(function()
+           local player = game.Players.LocalPlayer
+           local character = player.Character or player.CharacterAdded:Wait()
+           local humanoid = character:WaitForChild("Humanoid")
+           
+           -- สร้างการขยับแขนสั้นๆ แบบวนลูป
+           while isEmoting do
+               task.wait(0.15)
+               local rightArm = character:FindFirstChild("Right Arm") or character:FindFirstChild("RightUpperArm")
+               if rightArm then
+                   -- ทำงานร่วมกับฟังก์ชันพื้นฐานของร่างกาย
+                   humanoid:ChangeState(Enum.HumanoidStateType.NoPhysics)
+                   task.wait(0.1)
+                   humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+               end
+           end
+       end)
+   end,
+})
+
+-- แจ้งเตือนเมื่อโหลดสคริปต์สำเร็จ
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "📱 iPhone 15 Pro Max",
+    Text = "โหลดเมนูสคริปต์สำเร็จเรียบร้อย!",
+    Duration = 5
+})
